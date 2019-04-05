@@ -171,9 +171,9 @@ T List_reverse (T list) {
  * field of the list and the Nth element holds the value of end, which is often the null
  * pointer
  * 
- * @param  {T} list   List to create array from
- * @param  {void * end   Pointer to the value of end
- * @return      Pointer to the first element of the array created
+ * @param  {T} 		list   	List to create array from
+ * @param  {void *} end   	Pointer to the value of end
+ * @return      	Pointer to the first element of the array created
  */
 void **List_toArray(T list, void *end) {
 	int i, n = List_length(list);

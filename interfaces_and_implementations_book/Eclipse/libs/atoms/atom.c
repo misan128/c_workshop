@@ -1,43 +1,16 @@
-/**
- * An atom is a pointer to a unique, immutable sequence of zero or more arbitrary bytes. Most
- * atoms are null-terminated strings, but a pointer to any sequence of bytes can be an atom.
- * There is only a single occurrece of any atom, which is why it's called an atom.
- *
- * Two atoms are identical if they point to the same location. Comparing two byte sequences
- * for equality by simply comparing pointers is one of the advantages of atoms. Another
- * advantage is that using atoms saves space because there's only one occurrence of each
- * sequence.
- *
- * Atoms are often used as keys in data structures that are indexed by sequences of
- * arbitrary bytes instead of by integers.
- */
-
-
-//////////////
-// includes //
-//////////////
-
+// <includes>
 #include "atom.h"
 #include <string.h>
 #include "assert.h"
 #include <limits.h>
 #include "mem.h"
 
-
-////////////
-// macros //
-////////////
-
+//<macros>
 #define NELEMS(x) ((sizeof(x))/(sizeof((x)[0])))
 
+//<data>
 
-//////////
-// data //
-//////////
-
-/**
- * scatter is a 256-entry array that maps bytes to random numbers.
- */
+// scatter is a 256-entry array that maps bytes to random numbers.
 static unsigned long scatter[] = {
 	2078917053, 143302914, 1027100827, 1953210302, 755253631, 2002600785,
 	1405390230, 45248011, 1099951567, 433832350, 2018585307, 438263339,
@@ -90,30 +63,15 @@ static struct atom {
 	char *str;
 } *buckets[2048];
 
+//<functions>
 
-///////////////
-// functions //
-///////////////
-
-/**
- * Atom_string is similar to Atom_new; it caters to the common use of character strings
- * as atoms. It accepts a null-terminated string, adds a copy of that string to the atom
- * table, if necessary, and returns the atom.
- * 
- * @param  {const chat *} str   Null-terminated string
- * @return     Pointer to the atom
- */
+// Atom_string and Atom_int can be implemented without knowing the representation detail of
+// the atom table.
 const char *Atom_string(const char *str) {
 	assert(str);
 	return Atom_new(str, strlen(str));
 }
 
-
-/**
- * [Atom_int description]
- * @param  n [description]
- * @return   [description]
- */
 const char *Atom_int(long n) {
 	char str[43];
 	char *s = str + sizeof str;
@@ -138,19 +96,7 @@ const char *Atom_int(long n) {
 	return Atom_new(s, (str + sizeof str) - s);
 }
 
-
-/**
- * Accepts a pointer to a sequence of bytes and the number of bytes in that sequence. It 
- * adds a copy of the sequence to the table of atoms, if necesary, and returns the atom,
- * which is a pointer to the copy of the sequence in the atom table. Once an atom is
- * created it exist for the duration of the client's execution. An atom is always
- * terminated with a null character, which Atom_new adds when necessary.
- * 
- * @param  {const char *} str   Sequence of bytes to reference atom 
- * @param  {int} len   Length in bytes of atom reference 
- * @return     Pointer of the sequence to the table of atoms
- */
-const char*Atom_new (const char *str, int len){
+const char*Atom_new(const char *str, int len){
 	unsigned long h;
 	int i;
 	struct atom *p;
@@ -159,20 +105,23 @@ const char*Atom_new (const char *str, int len){
 	assert(len >= 0);
 
 	//<h <- hash str[0.. len-1]>
-	for (h = 0, i = 0; i < len; i ++)
+	for (h = 0, i = 0; i < len; i ++){
 		h = (h << 1) + scatter[(unsigned char)str[i]];
+	}
+
 
 	h%= NELEMS(buckets);
 
-	for (p = buckets[h]; p; p = p->link)
+	for (p = buckets[h]; p; p = p->link){
 		if (len == p->len) {
-			for (i = 0; i < len && p->str[i] == str[i]; )
+			for (i = 0; i < len && p->str[i] == str[i]; ){
 				i++;
-
-			if ( i == len) 
+			}
+			if ( i == len) {
 				return p->str;
-			
+			}
 		}
+	}
 
 	//<allocate new entry>
 	p = ALLOC(sizeof(*p) + len + 1);
@@ -189,12 +138,6 @@ const char*Atom_new (const char *str, int len){
 
 }
 
-
-/**
- * Returns the length of its atom argument
- * @param  {const char *} str   Atom key referece
- * @return     Length of atom
- */
 int Atom_length(const char *str){
 	struct atom *p;
 	int i;

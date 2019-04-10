@@ -14,7 +14,7 @@
  *
  * Buckets points to an array with the appropriate number of elements. The comp and
  * hash functions are associated with a particular table, so they are also stored in
- * the structure along with the number of elements in buckets.
+ * the structure along with the number of elements in bucket.
  */
 struct T {
 	// <fields>
@@ -66,7 +66,7 @@ void Table_free (T *table) {
 		int i;
 		struct binding *p, *q;
 		for (i = 0; i < (*table)->size; i++)
-			for (p = (*table)->size; i++) {
+			for (p = (*table)->buckets[i]; p; p = q) {
 				q = p->link;
 				FREE(p);
 			}
@@ -90,6 +90,10 @@ void *Table_get (T table, const void *key) {
 	assert(key);
 
 	// <search table for key>
+	i = (*table->hash)(key)%table->size;
+	for (p = table->buckets[i]; p; p = p->link)
+		if ((*table->cmp)(key, p->key) == 0)
+			break;
 	i = (*table->hash)(key)%table->size;
 	for (p = table->buckets[i]; p; p = p->link)
 		if ((*table->cmp)(key, p->key) == 0)
@@ -193,7 +197,7 @@ void *Table_put (T table, const void *key, void *value) {
 		if ((*table->cmp)(key, p->key) == 0)
 			break;
 	
-	if (p = NULL) {
+	if (p == NULL) {
 		NEW(p);
 		p->key = key;
 		p->link = table->buckets[i];

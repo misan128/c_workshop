@@ -35,7 +35,12 @@
 #include "mem.h"
 
 
+/////////////
+// defines //
+/////////////
+
 #define T Array_T
+
 
 ///////////////
 // functions //

@@ -19,6 +19,6 @@ extern void *Mem_resize(void *ptr, long nbytes, const char *file, int line);
 #define RESIZE(ptr, nbytes) ((ptr) = Mem_resize((ptr), (nbytes), __FILE__, __LINE__))
 
 #define NEW(p)  ((p) = ALLOC((long)sizeof *(p)))
-#define NEWO(p) ((p) = CALLOC(1, (long)sizeof *(p)))
+#define NEW0(p) ((p) = CALLOC(1, (long)sizeof *(p)))
 
 #endif
